@@ -12,7 +12,7 @@ namespace EnemyScripts
     {
         [Header("Component References")]
         [SerializeField] protected Health health;
-        
+
         protected Transform playerTransform;
         protected EnemyData enemyData;
         protected float lastAttackTime;
@@ -21,25 +21,25 @@ namespace EnemyScripts
                scaledAttackCooldown,
                     scaledMoveSpeed,
                    scaledScoreValue;
-        
+
         public virtual void Initialize(Transform playerTransform, EnemyData enemyData)
         {
             this.playerTransform = playerTransform;
             this.enemyData = enemyData;
-            
+
             var statMultiplier = 1.0f;
             if (DifficultyManager.Instance != null)
             {
                 statMultiplier = DifficultyManager.Instance.GetCurrentStatMultiplier();
             }
-            
+
             var scaledHealth = enemyData.maxHealth * statMultiplier;
-            
+
             scaleDamage = enemyData.damage * statMultiplier;
-            scaledMoveSpeed = enemyData.damage * statMultiplier;
+            scaledMoveSpeed = enemyData.moveSpeed * statMultiplier;
             scaledAttackCooldown = enemyData.attackCooldown / statMultiplier;
             scaledScoreValue = enemyData.scoreValue * statMultiplier;
-            
+
             if (health != null)
             {
                 health.onDie.RemoveAllListeners();
@@ -47,62 +47,51 @@ namespace EnemyScripts
                 health.onDie.AddListener(Die);
             }
         }
-        protected virtual void Update(){}
+        protected virtual void Update() { }
         public void Die()
         {
             DropItem();
-            
-            /*
-            if (GameManager.Instance != null)
+
+            var gameplayManager = ServiceLocator.TryGetService<generalScripts.Interfaces.IGameplayManager>(out var gpm) ? gpm : null;
+            if (gameplayManager != null)
             {
-                GameManager.Instance.AddScore((int)scaledScoreValue);
-                GameManager.Instance.OnEnemyDestroyed(1);
+                gameplayManager.AddScore((int)scaledScoreValue);
+                gameplayManager.OnEnemyDestroyed(1);
             }
-            */
-            
+
             if (DifficultyManager.Instance != null)
             {
                 DifficultyManager.Instance.EnemyKilled();
             }
-            
+
             Destroy(gameObject);
         }
         
+
         private void DropItem()
         {
             if (Random.value < enemyData.overallNoDropChance)
             {
-                Debug.Log("No item dropped due to overallNoDropChance.");
                 return;
             }
-            
             if (enemyData?.dropConfigurations == null || enemyData.dropConfigurations.Count == 0)
             {
                 return;
             }
-            
             var itemsDroppedCount = 0;
-            
             var validDrops = enemyData.dropConfigurations
                 .Where(config => config.dropWeight > 0 && config.itemToDropPrefab != null)
                 .ToList();
-
             if (validDrops.Count == 0) return;
-            
             var totalWeight = validDrops.Sum(config => config.dropWeight);
-            
             if (totalWeight <= 0) return;
-            
             var randomNumber = Random.Range(1, totalWeight + 1);
-            
-            var selectedDrop = new DropConfiguration(); 
-            
+            var selectedDrop = new DropConfiguration();
             var currentWeight = 0;
-            
             foreach (var config in validDrops)
             {
                 currentWeight += config.dropWeight;
-                
+
                 if (randomNumber <= currentWeight)
                 {
                     selectedDrop = config;
@@ -115,6 +104,16 @@ namespace EnemyScripts
                 Debug.Log($"Enemy dropped single item: {selectedDrop.itemToDropPrefab.name} (Weight: {selectedDrop.dropWeight})");
             }
         }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         private void DealDamageToPlayer(Collider2D other)
         {
             var playerHealth = other.GetComponent<Health>();

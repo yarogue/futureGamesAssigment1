@@ -4,8 +4,6 @@ namespace generalScripts
     {
         Default,
         
-        MainMenu,
-        
         Gameplay,
         
         Paused,

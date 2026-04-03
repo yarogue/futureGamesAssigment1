@@ -1,5 +1,6 @@
 using UnityEngine;
 using generalScripts;
+using generalScripts.Interfaces;
 
 namespace MainCharacterScripts
 {
@@ -26,7 +27,10 @@ namespace MainCharacterScripts
 
         public void Die()
         {
-            //GameManager.Instance.OnPlayerDied();
+            if (ServiceLocator.TryGetService<IGameplayManager>(out var gameplayManager))
+            {
+                gameplayManager.OnPlayerDied();
+            }
             Destroy(gameObject);
         }
     }

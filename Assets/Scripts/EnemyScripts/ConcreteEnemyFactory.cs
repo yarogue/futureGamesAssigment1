@@ -1,5 +1,6 @@
 using UnityEngine;
 using scriptableObjects;
+using generalScripts;
 
 namespace EnemyScripts
 {
@@ -11,37 +12,36 @@ namespace EnemyScripts
 
         public override IEnemy CreateMeleeEnemy(Vector3 spawnPosition, EnemyData enemyData, Transform playerTransform)
         {
-            GameObject enemyGo = Instantiate(meleeEnemyPrefab, spawnPosition, Quaternion.identity);
-            
-            // Get the IEnemy component and initialize it with the data and player transform
+            GameObject enemyGo;
+
+            if (ObjectPool.Instance != null)
+                enemyGo = ObjectPool.Instance.Get(meleeEnemyPrefab, spawnPosition, Quaternion.identity);
+            else
+                enemyGo = Instantiate(meleeEnemyPrefab, spawnPosition, Quaternion.identity);
+
             IEnemy newEnemy = enemyGo.GetComponent<IEnemy>();
             if (newEnemy != null)
             {
                 newEnemy.Initialize(playerTransform, enemyData);
             }
-            else
-            {
-                Debug.LogError("Melee enemy prefab is missing an IEnemy component!");
-            }
-            
+
             return newEnemy;
         }
 
         public override IEnemy CreateRangedEnemy(Vector3 spawnPosition, EnemyData enemyData, Transform playerTransform)
         {
-            GameObject enemyGo = Instantiate(rangedEnemyPrefab, spawnPosition, Quaternion.identity);
-            
-            // Get the IEnemy component and initialize it with the data and player transform
+            GameObject enemyGo;
+
+            if (ObjectPool.Instance != null)
+                enemyGo = ObjectPool.Instance.Get(rangedEnemyPrefab, spawnPosition, Quaternion.identity);
+            else
+                enemyGo = Instantiate(rangedEnemyPrefab, spawnPosition, Quaternion.identity);
+
             IEnemy newEnemy = enemyGo.GetComponent<IEnemy>();
             if (newEnemy != null)
             {
                 newEnemy.Initialize(playerTransform, enemyData);
             }
-            else
-            {
-                Debug.LogError("Ranged enemy prefab is missing an IEnemy component!");
-            }
-            
             return newEnemy;
         }
     }

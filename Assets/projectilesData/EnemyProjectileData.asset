@@ -18,9 +18,7 @@ MonoBehaviour:
   fireRate: 0.5
   projectileSpeed: 10
   projectileGetDestroyTime: 1
-  projectileDamage: 5
+  projectileDamage: 2
   areaDamageRadius: 0
   isInfinite: 1
   isExplosive: 0
-  maxAmmo: 0
-  reloadTime: 0

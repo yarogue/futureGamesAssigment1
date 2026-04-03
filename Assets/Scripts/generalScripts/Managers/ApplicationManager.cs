@@ -12,6 +12,12 @@ namespace generalScripts.Managers
             ServiceLocator.RegisterService<IApplicationManager>(this);
         }
 
+        private void Start()
+        {
+            Application.targetFrameRate = 60;
+            SetGameplayState();
+        }
+
         private void OnDestroy()
         {
             ServiceLocator.UnregisterService<IApplicationManager>(this);
@@ -31,8 +37,6 @@ namespace generalScripts.Managers
 
         public void RestartGame()
         {
-            // TODO: Use SceneLoader service once implemented
-            // TODO: Reset GameplayManager state
             UnityEngine.SceneManagement.SceneManager.LoadScene(
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
 
@@ -42,7 +46,6 @@ namespace generalScripts.Managers
 
         public void LoadMainMenu()
         {
-            // TODO: Use SceneLoader service once implemented
             Time.timeScale = 1f;
             UnityEngine.SceneManagement.SceneManager.LoadScene(0);
             SetGameState(GameState.Gameplay);

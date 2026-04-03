@@ -169,7 +169,7 @@ namespace generalScripts
                 },
                 error =>
                 {
-                    Debug.LogError($"[PlayFabBackend] Failed to submit score: {error.ErrorMessage}");
+                    Debug.LogWarning($"[PlayFabBackend] Failed to submit score: {error.ErrorMessage}");
                 }
             );
         }

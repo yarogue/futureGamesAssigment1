@@ -68,23 +68,35 @@ namespace EnemyScripts
                 yield break;
             }
 
-            /*
-            while (GameManager.Instance != null && GameManager.Instance.CurrentGameState == GameState.Gameplay)
+            var appManager = ServiceLocator.TryGetService<IApplicationManager>(out var app) ? app : null;
+
+            while (true)
             {
-                var rateMultiplier = DifficultyManager.Instance.GetCurrentSpawnRateMultiplier();
+                // Only spawn during Gameplay state
+                if (appManager != null && appManager.CurrentGameState != GameState.Gameplay)
+                {
+                    yield return null;
+                    continue;
+                }
+
+                var rateMultiplier = DifficultyManager.Instance != null
+                    ? DifficultyManager.Instance.GetCurrentSpawnRateMultiplier()
+                    : 1f;
                 var actualSpawnInterval = spawnInterval / rateMultiplier;
-                
+
                 yield return new WaitForSeconds(actualSpawnInterval);
 
-                List<EnemyData> availableEnemies = DifficultyManager.Instance.GetAvailableEnemyTypes();
+                List<EnemyData> availableEnemies = DifficultyManager.Instance != null
+                    ? DifficultyManager.Instance.GetAvailableEnemyTypes()
+                    : new List<EnemyData>();
 
                 if (availableEnemies.Count == 0)
                 {
                     continue;
                 }
-                
-                var spawnPosition = _playerTransform.position + (Vector3)(Random.insideUnitSphere.normalized * spawnRadius);
-                
+
+                var spawnPosition = _playerTransform.position + (Vector3)(Random.insideUnitCircle.normalized * spawnRadius);
+
                 EnemyData enemyData = availableEnemies[Random.Range(0, availableEnemies.Count)];
 
                 IEnemy newEnemy = null;
@@ -94,7 +106,6 @@ namespace EnemyScripts
                 {
                     newEnemy = enemyFactory.CreateMeleeEnemy(spawnPosition, enemyData, _playerTransform);
                 }
-
                 else if (type == EnemyType.Ranged)
                 {
                     newEnemy = enemyFactory.CreateRangedEnemy(spawnPosition, enemyData, _playerTransform);
@@ -108,8 +119,7 @@ namespace EnemyScripts
                 {
                     _enemiesAliveCount++;
                 }
-                */
-
+            }
         }
 
         public void OnEnemyDestroyed()

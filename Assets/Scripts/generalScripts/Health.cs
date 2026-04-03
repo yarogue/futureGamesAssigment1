@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using generalScripts.Interfaces;
 
 namespace generalScripts
 {
@@ -10,7 +11,7 @@ namespace generalScripts
         private float maxHealth;
         [SerializeField]
         private float currentHealth;
-        
+
         [Header("Events")]
         public UnityEvent onTakeDamage;
         public UnityEvent onDie;
@@ -28,28 +29,42 @@ namespace generalScripts
         public void Heal(int amount)
         {
             if (currentHealth >= maxHealth) return;
-            
+
             float startingHealth = currentHealth;
-            
+
             currentHealth = Mathf.Min(currentHealth + (float)amount, maxHealth);
-            
+
             float actualHealth = currentHealth - startingHealth;
-            
+
             Debug.Log($"Player healed {amount:F1} HP. Current HP: {actualHealth:F1}");
             UpdateHealthUI();
         }
-        
+
         public void TakeDamage(float damageAmount)
         {
             currentHealth -= damageAmount;
-            
+
+            // Spawn damage number
+            SpawnDamageNumber(damageAmount);
+
             onTakeDamage.Invoke();
             UpdateHealthUI();
-            
+
             if (currentHealth <= 0)
             {
                 Die();
             }
+        }
+
+        private void SpawnDamageNumber(float damage)
+        {
+            var go = new GameObject("DamageNumber");
+            go.transform.position = transform.position + Vector3.up * 0.5f;
+            var dn = go.AddComponent<DamageNumber>();
+
+            // Red for player damage, yellow for enemy damage
+            var color = gameObject.CompareTag("Player") ? Color.red : Color.yellow;
+            dn.Initialize(damage, color);
         }
         private void Die()
         {
@@ -57,12 +72,18 @@ namespace generalScripts
         }
         private void UpdateHealthUI()
         {
-            /*
-            if (gameObject.CompareTag("Player") && GameManager.Instance != null)
+            if (gameObject.CompareTag("Player"))
             {
-                GameManager.Instance.UpdateHealth(currentHealth);
+                if (ServiceLocator.TryGetService<IGameplayManager>(out var gameplayManager))
+                {
+                    gameplayManager.UpdateHealth(currentHealth);
+                }
             }
-            */
+        }
+
+        public void RefreshHealthUI()
+        {
+            UpdateHealthUI();
         }
     }
 }

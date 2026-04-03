@@ -89,7 +89,6 @@ namespace proceduralMaps
                         }
                         
                         default:
-                            Debug.Log("Unknown display type");
                             break;
                     }
 

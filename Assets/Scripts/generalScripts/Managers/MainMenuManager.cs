@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using generalScripts.Interfaces;
+using scriptableObjects;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -17,56 +18,62 @@ namespace generalScripts.Managers
         [SerializeField]
         private List<GameObject> panels = new List<GameObject>();
 
+        [Header("Leaderboard")]
+        [SerializeField] private Transform leaderboardEntriesParent;
+        [SerializeField] private GameObject leaderboardEntryPrefab;
+
         private enum CurrentPanel
         {
             MainMenu = 0,
             StartGame = 1,
-            Extras = 2,
-            Exit = 3
+            Leaderboard = 2
         }
 
         private CurrentPanel _currentPanel;
 
         private void Start()
         {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+
             _currentPanel = CurrentPanel.MainMenu;
             UpdateUI();
         }
 
         private void UpdateUI()
         {
-            foreach (var panel in panels)
+            for (int i = 0; i < panels.Count; i++)
             {
-                panel.SetActive(false);
+                panels[i].SetActive(i == (int)_currentPanel);
             }
-
-            panels[(int)_currentPanel].SetActive(true);
         }
 
         public void OnStartButtonClick()
         {
-            Debug.Log("OnStartButtonClick");
             _currentPanel = CurrentPanel.StartGame;
             UpdateUI();
         }
 
+        public void OnLeaderboardButtonClick()
+        {
+            _currentPanel = CurrentPanel.Leaderboard;
+            UpdateUI();
+            RefreshLeaderboard();
+        }
+
+        // Keep old name so existing Extras buttons still work
         public void OnExtrasButtonClick()
         {
-            Debug.Log("OnExtrasButtonClick");
-            _currentPanel = CurrentPanel.Extras;
-            UpdateUI();
+            OnLeaderboardButtonClick();
         }
 
         public void OnExitButtonClick()
         {
-            Debug.Log("OnExitButtonClick");
-            _currentPanel = CurrentPanel.Exit;
-            UpdateUI();
+            Application.Quit();
         }
 
         public void OnBackButtonClick()
         {
-            Debug.Log("Go back button clicked");
             _currentPanel = CurrentPanel.MainMenu;
             UpdateUI();
         }
@@ -91,6 +98,46 @@ namespace generalScripts.Managers
 
             Debug.Log($"[MainMenu] Starting game for player: {playerName}");
             SceneManager.LoadScene((int)SceneIndex.GameScene);
+        }
+
+        private void RefreshLeaderboard()
+        {
+            if (leaderboardEntriesParent == null || leaderboardEntryPrefab == null)
+            {
+                Debug.LogWarning("[MainMenu] Leaderboard entries parent or prefab not assigned");
+                return;
+            }
+
+            // Clear old entries
+            foreach (Transform child in leaderboardEntriesParent)
+            {
+                Destroy(child.gameObject);
+            }
+
+            if (!ServiceLocator.TryGetService<IDataManager>(out var dataManager)) return;
+
+            List<PlayerData> leaderboard = dataManager.GetSortedLeaderboard();
+            int count = Mathf.Min(leaderboard.Count, 10);
+
+            for (int i = 0; i < count; i++)
+            {
+                var entry = Instantiate(leaderboardEntryPrefab, leaderboardEntriesParent);
+                var text = entry.GetComponentInChildren<TextMeshProUGUI>();
+                if (text != null)
+                {
+                    text.text = $"{i + 1}. {leaderboard[i].username} - {leaderboard[i].highScore}";
+                }
+            }
+
+            if (count == 0)
+            {
+                var entry = Instantiate(leaderboardEntryPrefab, leaderboardEntriesParent);
+                var text = entry.GetComponentInChildren<TextMeshProUGUI>();
+                if (text != null)
+                {
+                    text.text = "No scores yet. Play the game!";
+                }
+            }
         }
     }
 }

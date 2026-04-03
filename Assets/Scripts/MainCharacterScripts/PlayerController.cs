@@ -42,15 +42,13 @@ namespace MainCharacterScripts
 
         public void Start()
         {
-            // ~~~ Need to be moved to gameplay ! ~~~ //
-
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Confined;
-
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-
-
             playerMovement.Initialize(playerStats);
+            
+            // Reset missiles for new game (ScriptableObject.OnEnable only runs once)
+            if (playerStats != null)
+            {
+                playerStats.currentMissileAmount = playerStats.maxMissileAmount;
+            }
 
             if (inputProcessor != null) return;
             inputProcessor = GetComponent<PlayerInputProcessor>();

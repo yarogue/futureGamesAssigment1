@@ -62,6 +62,7 @@ namespace generalScripts.Managers
         private float _missileCooldownDuration = 0.5f;
 
         private bool _isPaused = false;
+        private bool _isGameOver = false;
         private IInputManager _inputManager;
 
         private void OnEnable()
@@ -114,6 +115,7 @@ namespace generalScripts.Managers
             {
                 missileReloadSlider.maxValue = _missileCooldownDuration;
                 missileReloadSlider.value = _missileCooldownDuration;
+                missileReloadSlider.gameObject.SetActive(false);
             }
         }
         private void Start()
@@ -141,22 +143,35 @@ namespace generalScripts.Managers
             gameplayPanel.SetActive(true);
             pauseMenuPanel.SetActive(false);
             gameOverPanel.SetActive(false);
+
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Confined;
         }
 
         public void ShowPauseMenu()
         {
             pauseMenuPanel.SetActive(true);
             gameplayPanel.SetActive(false);
+
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
         }
 
         public void ShowGameOverMenu()
         {
+            _isGameOver = true;
             gameOverPanel.SetActive(true);
             gameplayPanel.SetActive(false);
+
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
         }
 
         public void TogglePause()
         {
+            // Block pause during game over
+            if (_isGameOver) return;
+
             _isPaused = !_isPaused;
 
             if (_isPaused)
@@ -225,8 +240,13 @@ namespace generalScripts.Managers
             float timeElapsed = Time.time - _lastMissileFiredTime;
 
             float progress = Mathf.Min(timeElapsed, _missileCooldownDuration);
-
             missileReloadSlider.value = progress;
+
+            // Hide slider when cooldown is done
+            if (progress >= _missileCooldownDuration && missileReloadSlider.gameObject.activeSelf)
+            {
+                missileReloadSlider.gameObject.SetActive(false);
+            }
         }
 
         public void UpdateMissileCountDisplay(int currentAmmo, int maxAmmo)
@@ -240,11 +260,11 @@ namespace generalScripts.Managers
         public void StartMissileCooldownDisplay(float cooldownDuration)
         {
             _missileCooldownDuration = cooldownDuration;
-
             _lastMissileFiredTime = Time.time;
 
             if (missileReloadSlider != null)
             {
+                missileReloadSlider.gameObject.SetActive(true);
                 missileReloadSlider.maxValue = cooldownDuration;
                 missileReloadSlider.value = 0f;
             }
@@ -269,6 +289,14 @@ namespace generalScripts.Managers
             {
                 dataManager.AddOrUpdateHighScore(dataManager.CurrentPlayerUsername, _currentScore);
             }
+
+            // Destroy persistent player before going to menu
+            var player = FindObjectOfType<PlayerController>();
+            if (player != null)
+            {
+                Destroy(player.gameObject);
+            }
+
             Time.timeScale = 1f;
             SceneManager.LoadScene(0);
         }
@@ -284,12 +312,27 @@ namespace generalScripts.Managers
         }
         public void OnRestartGameClicked()
         {
-
             var dataManager = ServiceLocator.GetService<IDataManager>();
             if (dataManager != null)
             {
                 dataManager.AddOrUpdateHighScore(dataManager.CurrentPlayerUsername, _currentScore);
             }
+
+            // Destroy persistent player before reloading
+            var player = FindObjectOfType<PlayerController>();
+            if (player != null)
+            {
+                Destroy(player.gameObject);
+            }
+
+            // Reset difficulty
+            if (DifficultyManager.Instance != null)
+            {
+                DifficultyManager.Instance.ResetDifficulty();
+            }
+
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
 }

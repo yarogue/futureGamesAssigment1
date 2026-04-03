@@ -36,18 +36,11 @@ namespace MainCharacterScripts
         {
             if (playerStats == null)
             {
-                Debug.LogError("PlayerStats reference is missing on PlayerShooting. Disabling component.");
                 enabled = false;
                 return;
             }
-
-            // Get InputManager from ServiceLocator
+            
             inputManager = ServiceLocator.GetService<IInputManager>();
-            if (inputManager == null)
-            {
-                Debug.LogError("[PlayerShooting] InputManager not found!");
-            }
-
             OnMissileAmmoUpdated?.Invoke(playerStats.currentMissileAmount, playerStats.maxMissileAmount);
         }
 
@@ -76,8 +69,8 @@ namespace MainCharacterScripts
             }
             else if (weaponData == missileData)
             {
-                bool cooldownReady = Time.time - _lastMissileShotTime >= missileCooldownRate;
-                bool hasAmmo = playerStats.currentMissileAmount > 0;
+                var cooldownReady = Time.time - _lastMissileShotTime >= missileCooldownRate;
+                var hasAmmo = playerStats.currentMissileAmount > 0;
 
                 return cooldownReady && hasAmmo;
             }
@@ -114,14 +107,11 @@ namespace MainCharacterScripts
 
             if (playerStats.currentMissileAmount >= playerStats.maxMissileAmount)
             {
-                Debug.Log("Missile max capacity reached. Ammo not added.");
                 return;
             }
             playerStats.currentMissileAmount += amount;
             playerStats.currentMissileAmount = Mathf.Min(playerStats.currentMissileAmount, playerStats.maxMissileAmount);
             OnMissileAmmoUpdated?.Invoke(playerStats.currentMissileAmount, playerStats.maxMissileAmount);
-
-            Debug.Log($"Missile ammo restored by {amount}. Current: {playerStats.currentMissileAmount}");
         }
     }
 }
