@@ -8,6 +8,12 @@ namespace MainCharacterScripts
     public class PlayerLevelController : MonoBehaviour
     {
         public static PlayerLevelController Instance {get; private set;}
+
+        /// <summary>
+        /// Fired every time the player gains a level.
+        /// GameUIManager subscribes to show the upgrade picker panel.
+        /// </summary>
+        public static event Action OnLevelUp;
         
         [Header("Current stats")]
         [SerializeField]
@@ -84,6 +90,9 @@ namespace MainCharacterScripts
                 currentLevel++;
                 
                 Debug.Log($"Level {currentLevel} has been upgraded.");
+
+                // Notify listeners (GameUIManager will show upgrade picker)
+                OnLevelUp?.Invoke();
                 
                 _xpToNextLevel = GetRequiredXpForLevel(currentLevel);
                 

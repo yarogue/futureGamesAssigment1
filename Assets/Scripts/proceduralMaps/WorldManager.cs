@@ -53,15 +53,6 @@ namespace proceduralMaps
             }
         }
 
-        [Obsolete("Obsolete")]
-        private void Start()
-        {
-            var newPlayer = FindObjectOfType<PlayerController>();
-            if (newPlayer != null)
-            {
-                ResetWorld(newPlayer.transform);
-            }
-        }
 
         private void Update()
         {

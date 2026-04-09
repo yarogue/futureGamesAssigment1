@@ -27,6 +27,15 @@ namespace MainCharacterScripts
 
         public void Die()
         {
+            Debug.LogError("[PlayerHealth] ☠ Die() was called! Destroying player. " +
+                           "If unexpected, check what called TakeDamage() or onDie.Invoke().");
+
+            // Reset all runtime upgrades so stats are clean for the next session
+            if (PlayerUpgradeManager.Instance != null)
+            {
+                PlayerUpgradeManager.Instance.ResetStats();
+            }
+
             if (ServiceLocator.TryGetService<IGameplayManager>(out var gameplayManager))
             {
                 gameplayManager.OnPlayerDied();

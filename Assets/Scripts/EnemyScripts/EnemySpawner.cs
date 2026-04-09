@@ -28,24 +28,46 @@ namespace EnemyScripts
         {
             if (enemyFactory == null)
             {
+                Debug.LogError("[EnemySpawner] ❌ Enemy Factory is not assigned! Spawner disabled.");
                 return;
             }
 
             if (DifficultyManager.Instance == null)
             {
+                Debug.LogError("[EnemySpawner] ❌ DifficultyManager not found in scene! Spawner disabled.");
                 return;
             }
 
-            if (ServiceLocator.TryGetService<IPlayerController>(out var playerController))
-            {
-                _playerTransform = playerController.transform;
-                if (_spawnCoroutine != null)
-                {
-                    StopCoroutine(_spawnCoroutine);
-                }
-                _spawnCoroutine = StartCoroutine(SpawnEnemies());
-            }
+            // Player may not be registered yet if GameSceneManager spawns it in Start().
+            // Poll until it appears rather than failing immediately.
+            StartCoroutine(WaitForPlayerThenSpawn());
         }
+
+        private System.Collections.IEnumerator WaitForPlayerThenSpawn()
+        {
+            float waited = 0f;
+            const float timeout = 5f;
+
+            while (!ServiceLocator.TryGetService<IPlayerController>(out _))
+            {
+                if (waited >= timeout)
+                {
+                    Debug.LogError("[EnemySpawner] ❌ Timed out waiting for IPlayerController. " +
+                                   "Make sure PlayerController exists and registers in Awake().");
+                    yield break;
+                }
+                waited += 0.1f;
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            ServiceLocator.TryGetService<IPlayerController>(out var playerController);
+            _playerTransform = playerController.transform;
+            Debug.Log("[EnemySpawner] ✅ Player found. Starting spawn coroutine.");
+
+            if (_spawnCoroutine != null) StopCoroutine(_spawnCoroutine);
+            _spawnCoroutine = StartCoroutine(SpawnEnemies());
+        }
+
         public void Initialize(Transform player)
         {
             if (_playerTransform == null)
@@ -64,7 +86,7 @@ namespace EnemyScripts
         {
             if (_playerTransform == null)
             {
-                Debug.LogError("Player transform not set. Spawner cannot run.");
+                Debug.LogError("[EnemySpawner] Player transform not set. Spawner cannot run.");
                 yield break;
             }
 
@@ -72,6 +94,22 @@ namespace EnemyScripts
 
             while (true)
             {
+                // Re-fetch player if it was destroyed (e.g. on restart / scene reload)
+                if (_playerTransform == null)
+                {
+                    if (ServiceLocator.TryGetService<IPlayerController>(out var pc))
+                    {
+                        _playerTransform = pc.transform;
+                        Debug.Log("[EnemySpawner] Re-acquired player reference.");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("[EnemySpawner] Player reference lost. Waiting...");
+                        yield return new WaitForSeconds(1f);
+                        continue;
+                    }
+                }
+
                 // Only spawn during Gameplay state
                 if (appManager != null && appManager.CurrentGameState != GameState.Gameplay)
                 {

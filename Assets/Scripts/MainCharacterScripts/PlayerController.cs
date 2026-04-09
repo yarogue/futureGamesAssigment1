@@ -31,13 +31,26 @@ namespace MainCharacterScripts
 
         private void Awake()
         {
+            // Prevent duplicate players across scene loads
+            if (ServiceLocator.IsServiceRegistered<IPlayerController>())
+            {
+                Debug.LogWarning("[PlayerController] Duplicate PlayerController detected — destroying this one.");
+                Destroy(gameObject);
+                return;
+            }
+
             ServiceLocator.RegisterService<IPlayerController>(this);
             DontDestroyOnLoad(gameObject);
         }
 
         private void OnDestroy()
         {
-            ServiceLocator.UnregisterService<IPlayerController>(this);
+            // Only unregister if WE are the registered service.
+            // Destroyed clones must not wipe the original player's registration.
+            if (ServiceLocator.TryGetService<IPlayerController>(out var registered) && registered == (IPlayerController)this)
+            {
+                ServiceLocator.UnregisterService<IPlayerController>(this);
+            }
         }
 
         public void Start()

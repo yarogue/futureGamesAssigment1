@@ -17,9 +17,6 @@ namespace MainCharacterScripts
         private WeaponData bulletData,
                            missileData;
 
-        [Header("Missile Cooldown")]
-        public float missileCooldownRate = 0.5f;
-
         [Header("Player Data")]
         [SerializeField]
         private PlayerStats playerStats;
@@ -69,7 +66,8 @@ namespace MainCharacterScripts
             }
             else if (weaponData == missileData)
             {
-                var cooldownReady = Time.time - _lastMissileShotTime >= missileCooldownRate;
+                // Read cooldown from PlayerStats so MissileReloadSpeed upgrades apply live
+                var cooldownReady = Time.time - _lastMissileShotTime >= playerStats.missileCooldownRate;
                 var hasAmmo = playerStats.currentMissileAmount > 0;
 
                 return cooldownReady && hasAmmo;
@@ -90,7 +88,8 @@ namespace MainCharacterScripts
                 _lastMissileShotTime = Time.time;
                 playerStats.currentMissileAmount--;
                 OnMissileAmmoUpdated?.Invoke(playerStats.currentMissileAmount, playerStats.maxMissileAmount);
-                OnMissileCooldownStarted?.Invoke(missileCooldownRate);
+                // Pass the live cooldown value so the UI slider reflects upgraded reload speed
+                OnMissileCooldownStarted?.Invoke(playerStats.missileCooldownRate);
                 if (playerStats.currentMissileAmount == 0)
                 {
                     Debug.Log("Out of missiles");

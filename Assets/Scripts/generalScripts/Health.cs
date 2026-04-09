@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using generalScripts.Interfaces;
+using MainCharacterScripts;
 
 namespace generalScripts
 {
@@ -42,6 +43,16 @@ namespace generalScripts
 
         public void TakeDamage(float damageAmount)
         {
+            // Apply damage resistance if this is the player
+            if (gameObject.CompareTag("Player") && PlayerUpgradeManager.Instance != null)
+            {
+                var stats = PlayerUpgradeManager.GetPlayerStats();
+                if (stats != null && stats.damageResistance > 0f)
+                {
+                    damageAmount *= (1f - stats.damageResistance);
+                }
+            }
+
             currentHealth -= damageAmount;
 
             // Spawn damage number
