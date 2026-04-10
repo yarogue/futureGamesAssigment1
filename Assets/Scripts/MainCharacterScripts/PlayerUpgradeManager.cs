@@ -182,8 +182,8 @@ namespace MainCharacterScripts
                     break;
 
                 case StatType.FireRate:
-                    // fireRate is a cooldown interval (lower = faster shots), so we divide
-                    playerStats.fireRate /= mult;
+                    // fireRate = shots per second — multiply to fire faster
+                    playerStats.fireRate *= mult;
                     break;
 
                 case StatType.Damage:

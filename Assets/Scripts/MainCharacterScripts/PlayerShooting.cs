@@ -62,11 +62,11 @@ namespace MainCharacterScripts
         {
             if (weaponData == bulletData)
             {
-                return Time.time - _lastBulletShotTime >= weaponData.fireRate;
+                // fireRate = shots per second, convert to cooldown duration
+                return Time.time - _lastBulletShotTime >= 1f / playerStats.fireRate;
             }
             else if (weaponData == missileData)
             {
-                // Read cooldown from PlayerStats so MissileReloadSpeed upgrades apply live
                 var cooldownReady = Time.time - _lastMissileShotTime >= playerStats.missileCooldownRate;
                 var hasAmmo = playerStats.currentMissileAmount > 0;
 

@@ -7,25 +7,31 @@ namespace MainCharacterScripts
     public class ProjectileController : MonoBehaviour
     {
         [Header("Projectile Data")]
-        
-        [SerializeField]
-        private WeaponData data;
+        [SerializeField] private WeaponData data;
 
-        [SerializeField] 
-        private GameObject explosivePrefab;
+        [SerializeField] private GameObject explosivePrefab;
+        [SerializeField] private float areaDamageRadius;
+        [SerializeField] private Rigidbody2D body;
 
-        [SerializeField] 
-        private float areaDamageRadius;
-
-        [SerializeField] 
-        private Rigidbody2D body;
-        
         private bool _hasCollided;
-        
+
+        // ── Damage helpers ───────────────────────────────────────────────────
+
+        /// <summary>Returns the live direct-hit damage, reflecting Damage upgrades.</summary>
         public float GetDamage()
         {
-            return data.projectileDamage;
+            var stats = PlayerUpgradeManager.GetPlayerStats();
+            return stats != null ? stats.projectileDamage : data.projectileDamage;
         }
+
+        /// <summary>Returns the live area-of-effect damage, reflecting MissileAreaDamage upgrades.</summary>
+        private float GetAreaDamage()
+        {
+            var stats = PlayerUpgradeManager.GetPlayerStats();
+            return stats != null ? stats.missileAreaDamage : data.projectileDamage;
+        }
+
+        // ────────────────────────────────────────────────────────────────────
 
         private void Start()
         {
@@ -33,9 +39,7 @@ namespace MainCharacterScripts
             {
                 GetComponent<Rigidbody2D>().linearVelocity = transform.up * data.projectileSpeed;
             }
-
             Destroy(gameObject, data.projectileGetDestroyTime);
-
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -45,15 +49,15 @@ namespace MainCharacterScripts
                 var enemyHealth = other.GetComponent<Health>();
                 if (enemyHealth != null)
                 {
-                    enemyHealth.TakeDamage(data.projectileDamage);
+                    enemyHealth.TakeDamage(GetDamage());
                 }
-                
+
                 if (data.isExplosive)
                 {
                     ApplyAreaDamage();
                     Instantiate(explosivePrefab, transform.position, Quaternion.identity);
                 }
-                
+
                 Destroy(gameObject);
             }
         }
@@ -69,7 +73,7 @@ namespace MainCharacterScripts
                     var enemyHealth = hit.GetComponent<Health>();
                     if (enemyHealth != null)
                     {
-                        enemyHealth.TakeDamage(data.projectileDamage);
+                        enemyHealth.TakeDamage(GetAreaDamage());
                     }
                 }
             }

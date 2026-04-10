@@ -25,8 +25,7 @@ namespace generalScripts.Managers
         {
             _appManager = ServiceLocator.GetService<IApplicationManager>();
             _gameUIManager = FindObjectOfType<GameUIManager>();
-
-            // Initialize session
+            
             CurrentScore = 0;
             KillCount = 0;
             _gameTime = 0;
@@ -34,8 +33,7 @@ namespace generalScripts.Managers
             if (_gameUIManager != null)
             {
                 _gameUIManager.InitializeUI();
-
-                // Push initial player health to UI
+                
                 var player = GameObject.FindGameObjectWithTag("Player");
                 if (player != null)
                 {
@@ -78,8 +76,7 @@ namespace generalScripts.Managers
             {
                 _gameUIManager.UpdateKillCount(KillCount / 2);
             }
-
-            // Notify difficulty manager
+            
             if (DifficultyManager.Instance != null)
             {
                 DifficultyManager.Instance.EnemyKilled();
@@ -111,9 +108,9 @@ namespace generalScripts.Managers
 
         public string GetFormatedTime()
         {
-            int hours = Mathf.FloorToInt(_gameTime / 3600);
-            int minutes = Mathf.FloorToInt((_gameTime % 3600) / 60);
-            int seconds = Mathf.FloorToInt((_gameTime % 3600) % 60);
+            var hours = Mathf.FloorToInt(_gameTime / 3600);
+            var minutes = Mathf.FloorToInt((_gameTime % 3600) / 60);
+            var seconds = Mathf.FloorToInt((_gameTime % 3600) % 60);
 
             return $"{hours:00}:{minutes:00}:{seconds:00}";
         }

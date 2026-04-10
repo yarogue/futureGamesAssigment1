@@ -31,11 +31,11 @@ namespace generalScripts
         {
             if (currentHealth >= maxHealth) return;
 
-            float startingHealth = currentHealth;
+            var startingHealth = currentHealth;
 
             currentHealth = Mathf.Min(currentHealth + (float)amount, maxHealth);
 
-            float actualHealth = currentHealth - startingHealth;
+            var actualHealth = currentHealth - startingHealth;
 
             Debug.Log($"Player healed {amount:F1} HP. Current HP: {actualHealth:F1}");
             UpdateHealthUI();
@@ -43,7 +43,6 @@ namespace generalScripts
 
         public void TakeDamage(float damageAmount)
         {
-            // Apply damage resistance if this is the player
             if (gameObject.CompareTag("Player") && PlayerUpgradeManager.Instance != null)
             {
                 var stats = PlayerUpgradeManager.GetPlayerStats();

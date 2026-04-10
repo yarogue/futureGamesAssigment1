@@ -60,8 +60,7 @@ namespace generalScripts.Managers
             UpdateUI();
             RefreshLeaderboard();
         }
-
-        // Keep old name so existing Extras buttons still work
+        
         public void OnExtrasButtonClick()
         {
             OnLeaderboardButtonClick();
@@ -96,7 +95,7 @@ namespace generalScripts.Managers
             var dataManager = ServiceLocator.GetService<IDataManager>();
             dataManager.SetCurrentPlayer(playerName);
 
-            Debug.Log($"[MainMenu] Starting game for player: {playerName}");
+            //Debug.Log($"[MainMenu] Starting game for player: {playerName}");
             SceneManager.LoadScene((int)SceneIndex.GameScene);
         }
 
@@ -104,7 +103,7 @@ namespace generalScripts.Managers
         {
             if (leaderboardEntriesParent == null || leaderboardEntryPrefab == null)
             {
-                Debug.LogWarning("[MainMenu] Leaderboard entries parent or prefab not assigned");
+                //Debug.LogWarning("[MainMenu] Leaderboard entries parent or prefab not assigned");
                 return;
             }
 

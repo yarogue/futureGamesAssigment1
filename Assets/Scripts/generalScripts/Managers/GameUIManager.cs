@@ -75,10 +75,9 @@ namespace generalScripts.Managers
 
         private bool _isPaused = false;
         private bool _isGameOver = false;
-        private bool _isLevelUpOpen = false;   // blocks pause while picking upgrade
+        private bool _isLevelUpOpen = false;
         private IInputManager _inputManager;
-
-        // Holds the current set of upgrade options shown to the player
+        
         private List<UpgradeDefinition> _currentUpgradeOptions = new List<UpgradeDefinition>();
 
         private void OnEnable()
@@ -251,11 +250,8 @@ namespace generalScripts.Managers
         }
 
         // ── Level-Up Upgrade Panel ────────────────────────────────────────────
-
-        /// <summary>
-        /// Called automatically when PlayerLevelController.OnLevelUp fires.
-        /// Pauses the game and populates the upgrade choice panel.
-        /// </summary>
+        
+        
         private void ShowLevelUpPanel()
         {
             Debug.Log($"[GameUIManager] ShowLevelUpPanel called. Panel={levelUpPanel}, UpgradeManager={PlayerUpgradeManager.Instance}");
@@ -303,11 +299,7 @@ namespace generalScripts.Managers
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
-
-        /// <summary>
-        /// Wire each upgrade button's OnClick to this with the button index (0, 1, or 2).
-        /// Applies the chosen upgrade, hides the panel, and resumes the game.
-        /// </summary>
+        
         public void OnUpgradeChosen(int index)
         {
             if (index < 0 || index >= _currentUpgradeOptions.Count)

@@ -1,11 +1,10 @@
 namespace generalScripts.Managers
 {
     // TEMPORARILY DISABLED - Migrating to ApplicationManager + GameplayManager architecture
+    
+    
     // TODO: Migrate all GameManager.Instance references to use ServiceLocator
-    // The GameManager singleton pattern is being replaced with a service-based architecture:
-    // - ApplicationManager: Handles app-level state transitions (Gameplay, Paused, GameOver)
-    // - GameplayManager: Handles gameplay-specific logic (score, kills, health)
-    // Both are registered with ServiceLocator and accessible via IApplicationManager/IGameplayManager interfaces
+
 
     /*
     public class GameManager : MonoBehaviour

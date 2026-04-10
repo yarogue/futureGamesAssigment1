@@ -2,9 +2,6 @@ using UnityEngine;
 
 namespace scriptableObjects
 {
-    /// <summary>
-    /// Which player stat this upgrade affects.
-    /// </summary>
     public enum StatType
     {
         MoveSpeed,          // movement speed
@@ -15,11 +12,7 @@ namespace scriptableObjects
         MissileReloadSpeed, // missile cooldown (lower = faster reload)
         MissileAreaDamage   // area-of-effect damage on missile impact
     }
-
-    /// <summary>
-    /// A single upgrade option shown to the player on level-up.
-    /// Create via: Right-click Project > Player > Upgrade Definition
-    /// </summary>
+    
     [CreateAssetMenu(fileName = "New Upgrade", menuName = "Player/Upgrade Definition")]
     public class UpgradeDefinition : ScriptableObject
     {

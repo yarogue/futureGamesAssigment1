@@ -56,7 +56,7 @@ namespace generalScripts.Managers
             EnableGameplayControls();
 
             ServiceLocator.RegisterService<IInputManager>(this);
-            Debug.Log("[InputManager] Registered with ServiceLocator");
+            //Debug.Log("[InputManager] Registered with ServiceLocator");
         }
 
         private void OnDestroy()
@@ -65,7 +65,7 @@ namespace generalScripts.Managers
             playerInputs?.Dispose();
 
             ServiceLocator.UnregisterService<IInputManager>(this);
-            Debug.Log("[InputManager] Unregistered from ServiceLocator");
+            //Debug.Log("[InputManager] Unregistered from ServiceLocator");
         }
 
         private void Update()
@@ -140,7 +140,7 @@ namespace generalScripts.Managers
         public void DisableUIControls()
         {
             playerInputs.UI.Disable();
-            Debug.Log("[InputManager] UI controls disabled");
+            //Debug.Log("[InputManager] UI controls disabled");
         }
 
         public void StartRebinding(string actionName, int bindingIndex, Action<bool> onComplete)
@@ -148,26 +148,26 @@ namespace generalScripts.Managers
             var action = playerInputs.asset.FindAction(actionName);
             if (action == null)
             {
-                Debug.LogError($"[InputManager] Action '{actionName}' not found");
+                //Debug.LogError($"[InputManager] Action '{actionName}' not found");
                 onComplete?.Invoke(false);
                 return;
             }
 
-            Debug.Log($"[InputManager] Starting rebind for {actionName}");
+            //Debug.Log($"[InputManager] Starting rebind for {actionName}");
 
             var rebindOperation = action.PerformInteractiveRebinding(bindingIndex)
                 .WithControlsExcluding("Mouse/position")
                 .OnMatchWaitForAnother(0.1f)
                 .OnComplete(op =>
                 {
-                    Debug.Log($"[InputManager] Rebind complete for {actionName}");
+                    //Debug.Log($"[InputManager] Rebind complete for {actionName}");
                     SaveBindings();
                     onComplete?.Invoke(true);
                     op.Dispose();
                 })
                 .OnCancel(op =>
                 {
-                    Debug.Log($"[InputManager] Rebind cancelled for {actionName}");
+                    //Debug.Log($"[InputManager] Rebind cancelled for {actionName}");
                     onComplete?.Invoke(false);
                     op.Dispose();
                 })
@@ -195,7 +195,7 @@ namespace generalScripts.Managers
             if (!string.IsNullOrEmpty(rebinds))
             {
                 playerInputs.asset.LoadBindingOverridesFromJson(rebinds);
-                Debug.Log("[InputManager] Bindings loaded");
+                //Debug.Log("[InputManager] Bindings loaded");
             }
         }
     }

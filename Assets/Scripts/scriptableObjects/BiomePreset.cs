@@ -5,7 +5,6 @@ namespace scriptableObjects
     [CreateAssetMenu(fileName = "Biome Preset", menuName = "New biome preset")]
     public class BiomePreset : ScriptableObject
     {
-        //public new string name;
         public Color debugColor;
         public Sprite[] tileSprites;
 
